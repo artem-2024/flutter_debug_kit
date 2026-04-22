@@ -1,7 +1,9 @@
 name: flutter_debug_kit
-description: "Flutter 调试工具包：读系统代理并让 dart:io HTTP/WebSocket 自动走代理，方便 Charles 等工具抓包。"
+description: "Reads the system HTTP proxy at launch and routes all dart:io HTTP/WebSocket traffic through it. Enables Charles/Fiddler packet capture on Android, iOS, macOS and Windows."
 version: 0.1.0
-homepage:
+homepage: https://github.com/artem-2024/flutter_debug_kit
+repository: https://github.com/artem-2024/flutter_debug_kit
+issue_tracker: https://github.com/artem-2024/flutter_debug_kit/issues
 
 environment:
   sdk: ^3.6.2
