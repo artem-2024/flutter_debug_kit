@@ -43,6 +43,24 @@ if (DebugProxy.isActive) { /* ... */ }
 
 **Do not** call `enableFromSystem()` in your UAT / PROD entry points. Skipping the call means the plugin is fully inert.
 
+### WebSocket / STOMP under proxy
+
+Dart's `Uri` does not define default ports for `ws` / `wss`. When the proxy is active, `WebSocket.connect` ends up issuing `CONNECT host:0` to the proxy, which rejects the bind (Charles → `503 Can't assign requested address`).
+
+Wrap your ws/wss URL with `DebugProxy.normalizeWsUrl` once, before passing it to your STOMP / WebSocket client. It is a no-op when the proxy is not active and when the URL already has an explicit port.
+
+```dart
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+
+final client = StompClient(
+  config: StompConfig(
+    url: DebugProxy.normalizeWsUrl(url),   // 关键：走代理时补 ws→80 / wss→443
+    onConnect: ...,
+  ),
+);
+client.activate();
+```
+
 ## Android host app configuration (required)
 
 Android does not trust user-installed CAs by default, nor does it allow cleartext traffic. Packet capture requires both to be enabled **in your host app** — the plugin cannot (and should not) modify your manifest for you.

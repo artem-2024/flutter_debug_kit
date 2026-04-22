@@ -43,6 +43,24 @@ if (DebugProxy.isActive) { /* ... */ }
 
 UAT / PROD 入口**不要**调用 `enableFromSystem()`，插件就完全不介入。
 
+### WebSocket / STOMP 走代理时的端口补丁
+
+Dart 的 `Uri` 不为 `ws` / `wss` 定义默认端口，代理态下 `WebSocket.connect` 会向代理发 `CONNECT host:0`，代理 bind 失败（Charles 里表现为 `503 Can't assign requested address`）。
+
+在把 URL 交给 STOMP / WebSocket 客户端之前用 `DebugProxy.normalizeWsUrl` 包一下即可。未启用代理或已显式写端口时都是 no-op。
+
+```dart
+import 'package:stomp_dart_client/stomp_dart_client.dart';
+
+final client = StompClient(
+  config: StompConfig(
+    url: DebugProxy.normalizeWsUrl(url),   // 关键：走代理时补 ws→80 / wss→443
+    onConnect: ...,
+  ),
+);
+client.activate();
+```
+
 ## Android 宿主额外配置（必须）
 
 Android 默认不信任用户安装的 CA 证书，也不允许 cleartext。抓包时必须在**宿主 App 侧**补这两处配置。插件不会自动改你的 manifest。
