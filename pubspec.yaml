@@ -1,6 +1,6 @@
 name: flutter_debug_kit
 description: "Reads the system HTTP proxy at launch and routes all dart:io HTTP/WebSocket traffic through it. Enables Charles/Fiddler packet capture on Android, iOS, macOS and Windows."
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/artem-2024/flutter_debug_kit
 repository: https://github.com/artem-2024/flutter_debug_kit
 issue_tracker: https://github.com/artem-2024/flutter_debug_kit/issues
