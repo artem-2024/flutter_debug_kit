@@ -33,6 +33,26 @@ class DebugProxy {
       debugPrint('[flutter_debug_kit] 未检测到系统代理，直连');
     }
   }
+
+  /// 当 [isActive] 为 true、URL 是 ws/wss 且未显式指定端口时，补上默认端口
+  /// （ws→80，wss→443）；其它情况原样返回。
+  ///
+  /// 为什么需要这个：Dart 的 [Uri] 不为 ws/wss 定义默认端口，走 HTTP 代理握手时
+  /// 代理会收到 `CONNECT host:0`，bind 失败。直连路径由 dart:io 底层 socket 兜底
+  /// 不受影响，因此仅在代理态下需要补端口。
+  ///
+  /// 典型用法（stomp_dart_client 等走 [WebSocket.connect] 的场景）：
+  /// ```dart
+  /// stomp.connect(url: DebugProxy.normalizeWsUrl(url));
+  /// ```
+  static String normalizeWsUrl(String url) {
+    if (!isActive) return url;
+    final uri = Uri.parse(url);
+    if (uri.hasPort) return url;
+    if (uri.scheme != 'ws' && uri.scheme != 'wss') return url;
+    final port = uri.scheme == 'wss' ? 443 : 80;
+    return uri.replace(port: port).toString();
+  }
 }
 
 class _DebugProxyHttpOverrides extends HttpOverrides {
